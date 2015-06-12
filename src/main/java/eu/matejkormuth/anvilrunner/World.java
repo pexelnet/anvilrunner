@@ -10,6 +10,24 @@ public class World {
         this.loader = loader;
     }
 
+    public void loadChunk(Chunk chunk) {
+        this.loader.loadChunk(chunk);
+    }
+
+    public void unloadChunk(Chunk chunk) {
+        this.loader.unloadChunk(chunk);
+    }
+
+    public Chunk getChunk(int x, int z, boolean loadChunk) {
+        Chunk chunk = loader.provideChunk(x, z);
+
+        if(!chunk.isLoaded() && loadChunk) {
+            chunk.load();
+        }
+
+        return chunk;
+    }
+
     public Block getBlock(int x, int y, int z, boolean loadChunk) {
         // Find chunk - no need to Math.floor() JVM always rounds integer downwards to zero.
         int chunkX = x / Chunk.CHUNK_WIDTH;
@@ -29,9 +47,5 @@ public class World {
                         + " is not loaded and loadChunk is set to false!");
             }
         }
-    }
-
-    public Iterator<Chunk> getChunkIterator() {
-        return loader.createFileSystemChunkIterator();
     }
 }

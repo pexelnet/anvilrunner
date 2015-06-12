@@ -72,8 +72,8 @@ public class GrassBlockWorkDefinition {
         // worldLoader.requestBiomes();
 
         WorkResultCouple work = new WorkResultCouple(new GrassBlockExistence(), new ConcreteBlockTestResultHandler());
-        TaskExecutor executor = new ThreadedWorker(8);
-        executor.setWorkParameterProvider(new ChunkToBlockSplitter(new ChunkWorkSplitter(worldLoader.getWorld())));
+        TaskExecutor executor = new ThreadedWorker(8, 2);
+        executor.setWorkParameterProvider(new ChunkToBlockSplitter(new ChunkWorkSplitter(worldLoader)));
         executor.setTask(work);
         executor.start();
     }

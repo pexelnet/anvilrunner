@@ -8,7 +8,8 @@ public class Chunk {
     private final int x;
     private final int z;
     private final World w;
-    private boolean loaded;
+    boolean loaded;
+    boolean dirty = false;
 
     // Accessed by loader(s).
     byte[] biomes;
@@ -24,15 +25,29 @@ public class Chunk {
         this.z = z;
     }
 
+    /**
+     * Same as calling World.loadChunk(Chunk).
+     */
     public void load() {
-
+        this.w.loadChunk(this);
     }
 
+    /**
+     * Same as calling World.unloadChunk(Chunk).
+     */
     public void unload() {
-
+        this.w.unloadChunk(this);
     }
 
-    public boolean isLoaded() {
+    public final int getRegionX() {
+        return this.x / 32;
+    }
+
+    public final int getRegionZ() {
+        return this.z / 32;
+    }
+
+    public final boolean isLoaded() {
         return loaded;
     }
 

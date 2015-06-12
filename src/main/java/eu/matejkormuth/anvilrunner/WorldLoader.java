@@ -1,15 +1,23 @@
 package eu.matejkormuth.anvilrunner;
 
+import eu.matejkormuth.anvilrunner.nbt.NbtIo;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public class WorldLoader {
     private World world;
     private final Path worldPath;
+    private final Map<Long, Chunk> chunks;
 
     public WorldLoader(Path worldPath) {
         checkWorldPath(worldPath);
+
+        chunks = new HashMap<>();
 
         this.worldPath = worldPath;
         this.world = new World(this);
@@ -28,7 +36,7 @@ public class WorldLoader {
             throw new IllegalArgumentException("Folder specified in path must contain level.dat and region folder.");
         }
 
-        if (Files.exists(worldPath.resolve("region"))) {
+        if (Files.exists(worldPath.resolve("region/"))) {
             throw new IllegalArgumentException("Folder specified in path must contain level.dat and region folder.");
         }
     }
@@ -37,19 +45,75 @@ public class WorldLoader {
         return world;
     }
 
-    public void requestBiomes() {
-
-    }
-
     public Iterator<Chunk> createFileSystemChunkIterator() {
-        return null;
+        return new FileSystemRegionsChunksIterator(this.worldPath);
     }
 
     public Chunk provideChunk(int chunkX, int chunkZ) {
-        // Find region - there are 32x32 chunks in one region (mca) file.
-        int regionX = chunkX / 32;
-        int regionZ = chunkZ / 32;
+        long position = pos2long(chunkX, chunkZ);
 
-        return null;
+        if (chunks.containsKey(position)) {
+            return chunks.get(position);
+        } else {
+            Chunk c = new Chunk(this.world, chunkX, chunkZ);
+            chunks.put(position, c);
+            return c;
+        }
+    }
+
+    private long pos2long(int x, int z) {
+        return (long) x << 32 | z & 0xFFFFFFFFL;
+    }
+
+    public void loadChunk(Chunk c) {
+        if (c.loaded) {
+            throw new IllegalStateException("Chunk " + c + " is already loaded!");
+        }
+
+        throw new UnsupportedOperationException("Use loadChunks().");
+    }
+
+    private Path getRegionFile(int regionX, int regionZ) {
+        return this.worldPath.resolve("region/r." + regionX + "." + regionZ + ".mca");
+    }
+
+    public void unloadChunk(Chunk chunk) {
+        if (!chunk.loaded) {
+            throw new IllegalStateException("Chunk " + chunk + " is already unloaded!");
+        }
+
+        if (chunk.dirty) {
+            throw new UnsupportedOperationException("Chunk " + chunk
+                    + " is dirty! Saving changes is currently not supported!");
+        }
+
+        chunk.biomes = null;
+        chunk.blockLight = null;
+        chunk.skyLight = null;
+        chunk.type = null;
+        chunk.data = null;
+        chunk.heightMap = null;
+    }
+
+    public void loadChunks(ChunkLoadTicket req) throws IOException {
+        // Open region, load chunk, read subchunk arrays and merge them to big arrays.
+        Map<Long, RegionTagWrapper> regionTagCache = new HashMap<>();
+
+        // For each chunk in request.
+        for (Chunk chunk : req.chunks) {
+            long regionPosLong = pos2long(chunk.getRegionX(), chunk.getRegionZ());
+            // If region tag is not loaded, read and decompress it.
+            if (!regionTagCache.containsKey(regionPosLong)) {
+                byte[] bytes = Files.readAllBytes(getRegionFile(chunk.getRegionX(), chunk.getRegionZ()));
+                RegionTagWrapper regionTagWrapper = new RegionTagWrapper(NbtIo.decompress(bytes));
+                // Cache region Tag.
+                regionTagCache.put(regionPosLong, regionTagWrapper);
+            }
+        }
+        // Fill Chunk objects with data from region nbt tags.
+
+
+        // Clear cache.
+        regionTagCache.clear();
     }
 }

@@ -8,19 +8,27 @@ public class WorkerThread {
     private static final AtomicInteger counter = new AtomicInteger();
 
     private final Thread thread;
-    private final Deque<Runnable> deque;
+    final Deque<Runnable> workBuffer;
 
-    public WorkerThread() {
+    public WorkerThread(int workBufferSize) {
         thread = new Thread(this::work);
         thread.setName("WorkerThread-" + counter.getAndIncrement());
 
-        deque = new ArrayDeque<>();
+        workBuffer = new ArrayDeque<>(workBufferSize);
+    }
+
+    public void start() {
+        thread.start();
+    }
+
+    public void stop() {
+        thread.interrupt();
     }
 
     private void work() {
-        if(!deque.isEmpty()) {
+        if (!workBuffer.isEmpty()) {
             try {
-                deque.peek().run();
+                workBuffer.pop().run();
             } catch (Throwable throwable) {
                 throw throwable;
             }
