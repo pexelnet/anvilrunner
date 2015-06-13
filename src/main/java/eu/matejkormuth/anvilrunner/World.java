@@ -1,51 +1,38 @@
 package eu.matejkormuth.anvilrunner;
 
-import java.util.Iterator;
+import eu.matejkormuth.anvilrunner.locations.BlockLoc;
+import eu.matejkormuth.anvilrunner.locations.ChunkLoc;
+import eu.matejkormuth.anvilrunner.locations.RegionLoc;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class World {
 
-    private final WorldLoader loader;
+    private final Map<RegionLoc, Region> regions;
 
-    public World(WorldLoader loader) {
-        this.loader = loader;
+    public World() {
+        regions = new HashMap<>();
     }
 
-    public void loadChunk(Chunk chunk) {
-        this.loader.loadChunk(chunk);
+    public Region getRegion(BlockLoc loc) {
+        return getRegion(loc.getRegionLocation());
     }
 
-    public void unloadChunk(Chunk chunk) {
-        this.loader.unloadChunk(chunk);
+    public Region getRegion(ChunkLoc loc) {
+        return getRegion(loc.getRegionLocation());
     }
 
-    public Chunk getChunk(int x, int z, boolean loadChunk) {
-        Chunk chunk = loader.provideChunk(x, z);
-
-        if(!chunk.isLoaded() && loadChunk) {
-            chunk.load();
+    public Region getRegion(RegionLoc loc) {
+        if (!regions.containsKey(loc)) {
+            createRegionObj(loc);
         }
 
-        return chunk;
+        return regions.get(loc);
     }
 
-    public Block getBlock(int x, int y, int z, boolean loadChunk) {
-        // Find chunk - no need to Math.floor() JVM always rounds integer downwards to zero.
-        int chunkX = x / Chunk.CHUNK_WIDTH;
-        int chunkZ = z / Chunk.CHUNK_LENGTH;
-
-        // Load chunk.
-        Chunk chunk = loader.provideChunk(chunkX, chunkZ);
-
-        if (chunk.isLoaded()) {
-            return chunk.getBlock(x % Chunk.CHUNK_WIDTH, y, z % Chunk.CHUNK_LENGTH);
-        } else {
-            if (loadChunk) {
-                chunk.load();
-                return chunk.getBlock(x % Chunk.CHUNK_WIDTH, y, z % Chunk.CHUNK_LENGTH);
-            } else {
-                throw new IllegalStateException("Chunk " + chunk.toString()
-                        + " is not loaded and loadChunk is set to false!");
-            }
-        }
+    private void createRegionObj(RegionLoc loc) {
+        Region region = new Region(loc);
+        regions.put(loc, region);
     }
 }

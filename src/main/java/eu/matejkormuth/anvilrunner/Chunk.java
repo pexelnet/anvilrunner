@@ -7,7 +7,7 @@ public class Chunk {
 
     private final int x;
     private final int z;
-    private final World w;
+    private final OldWorld w;
     boolean loaded;
     boolean dirty = false;
 
@@ -19,22 +19,16 @@ public class Chunk {
     byte[] data;
     int[] heightMap;
 
-    public Chunk(World w, int x, int z) {
+    public Chunk(OldWorld w, int x, int z) {
         this.w = w;
         this.x = x;
         this.z = z;
     }
 
-    /**
-     * Same as calling World.loadChunk(Chunk).
-     */
     public void load() {
         this.w.loadChunk(this);
     }
 
-    /**
-     * Same as calling World.unloadChunk(Chunk).
-     */
     public void unload() {
         this.w.unloadChunk(this);
     }
@@ -50,7 +44,6 @@ public class Chunk {
     public final boolean isLoaded() {
         return loaded;
     }
-
 
     public Block getBlock(int cx, int cy, int cz) {
         return new Block(w, x * CHUNK_WIDTH + cx, cy, z * CHUNK_LENGTH + cz,

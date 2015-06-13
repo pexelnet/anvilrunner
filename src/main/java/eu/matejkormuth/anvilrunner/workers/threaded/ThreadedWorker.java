@@ -1,28 +1,29 @@
-package eu.matejkormuth.anvilrunner.tasks;
+package eu.matejkormuth.anvilrunner.workers.threaded;
 
 import eu.matejkormuth.anvilrunner.Block;
-import eu.matejkormuth.anvilrunner.jobs.worktypes.BlockTest;
-import eu.matejkormuth.anvilrunner.jobs.worktypes.BlockTestResultHandler;
+import eu.matejkormuth.anvilrunner.worktypes.BlockTest;
+import eu.matejkormuth.anvilrunner.resulthandlers.BlockTestResultHandler;
+import eu.matejkormuth.anvilrunner.workers.Worker;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 
-public final class ThreadedWorker extends TaskExecutor {
+public final class ThreadedWorker extends Worker {
     private final int threadCount;
     private final int workerBufferSize;
     private RunnableFactory runnableFactory;
-    private WorkerThread[] threads;
+    private ThreadedWorkerThread[] threads;
 
     public ThreadedWorker(int threadCount, int workerBufferSize) {
         this.threadCount = threadCount;
         this.workerBufferSize = workerBufferSize;
 
-        threads = new WorkerThread[threadCount];
+        threads = new ThreadedWorkerThread[threadCount];
 
         // Create thread objects.
         for (int i = 0; i < threadCount; i++) {
-            threads[i] = new WorkerThread(workerBufferSize);
+            threads[i] = new ThreadedWorkerThread(workerBufferSize);
         }
 
         // Create runnable factory.

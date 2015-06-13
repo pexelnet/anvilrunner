@@ -6,11 +6,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class WorldLoader {
-    private World world;
+    private OldWorld world;
     private final Path worldPath;
     private final Map<Long, Chunk> chunks;
 
@@ -20,7 +19,7 @@ public class WorldLoader {
         chunks = new HashMap<>();
 
         this.worldPath = worldPath;
-        this.world = new World(this);
+        this.world = new OldWorld(this);
     }
 
     private void checkWorldPath(Path worldPath) {
@@ -41,12 +40,8 @@ public class WorldLoader {
         }
     }
 
-    public World getWorld() {
+    public OldWorld getWorld() {
         return world;
-    }
-
-    public Iterator<Chunk> createFileSystemChunkIterator() {
-        return new FileSystemRegionsChunksIterator(this.worldPath);
     }
 
     public Chunk provideChunk(int chunkX, int chunkZ) {
@@ -97,7 +92,7 @@ public class WorldLoader {
 
     public void loadChunks(ChunkLoadTicket req) throws IOException {
         // Open region, load chunk, read subchunk arrays and merge them to big arrays.
-        Map<Long, RegionTagWrapper> regionTagCache = new HashMap<>();
+        Map<Long, Region> regionTagCache = new HashMap<>();
 
         // For each chunk in request.
         for (Chunk chunk : req.chunks) {
@@ -105,9 +100,9 @@ public class WorldLoader {
             // If region tag is not loaded, read and decompress it.
             if (!regionTagCache.containsKey(regionPosLong)) {
                 byte[] bytes = Files.readAllBytes(getRegionFile(chunk.getRegionX(), chunk.getRegionZ()));
-                RegionTagWrapper regionTagWrapper = new RegionTagWrapper(NbtIo.decompress(bytes));
+                Region region = new Region(NbtIo.decompress(bytes));
                 // Cache region Tag.
-                regionTagCache.put(regionPosLong, regionTagWrapper);
+                regionTagCache.put(regionPosLong, region);
             }
         }
         // Fill Chunk objects with data from region nbt tags.

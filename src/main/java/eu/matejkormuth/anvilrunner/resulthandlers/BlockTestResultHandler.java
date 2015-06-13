@@ -1,4 +1,4 @@
-package eu.matejkormuth.anvilrunner.jobs.worktypes;
+package eu.matejkormuth.anvilrunner.resulthandlers;
 
 import eu.matejkormuth.anvilrunner.Block;
 

@@ -1,10 +1,10 @@
-package eu.matejkormuth.anvilrunner.tasks;
+package eu.matejkormuth.anvilrunner.workers;
 
-public abstract class TaskExecutor {
+public abstract class Worker {
     protected Iterable workParameterProvider;
     protected WorkResultCouple workDefinition;
 
-    public void setTask(WorkResultCouple workDefinition) {
+    public void setWork(WorkResultCouple workDefinition) {
         this.workDefinition = workDefinition;
     }
 

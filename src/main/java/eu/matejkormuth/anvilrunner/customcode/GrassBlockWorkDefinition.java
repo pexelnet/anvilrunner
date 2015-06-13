@@ -1,23 +1,22 @@
-package eu.matejkormuth.anvilrunner.tasks.workdefinitions;
+package eu.matejkormuth.anvilrunner.customcode;
 
-import eu.matejkormuth.anvilrunner.Block;
-import eu.matejkormuth.anvilrunner.BlockTypes;
-import eu.matejkormuth.anvilrunner.WorldLoader;
-import eu.matejkormuth.anvilrunner.jobs.worksplitters.ChunkToBlockSplitter;
-import eu.matejkormuth.anvilrunner.jobs.worksplitters.ChunkWorkSplitter;
-import eu.matejkormuth.anvilrunner.jobs.worktypes.BlockTest;
-import eu.matejkormuth.anvilrunner.jobs.worktypes.BlockTestResultHandler;
-import eu.matejkormuth.anvilrunner.tasks.TaskExecutor;
-import eu.matejkormuth.anvilrunner.tasks.ThreadedWorker;
-import eu.matejkormuth.anvilrunner.tasks.WorkResultCouple;
+import eu.matejkormuth.anvilrunner.*;
+import eu.matejkormuth.anvilrunner.parametersplitters.ChunkToBlockSplitter;
+import eu.matejkormuth.anvilrunner.parametersplitters.ChunkWorkSplitter;
+import eu.matejkormuth.anvilrunner.parametersplitters.RegionToChunkSplitter;
+import eu.matejkormuth.anvilrunner.worktypes.BlockTest;
+import eu.matejkormuth.anvilrunner.resulthandlers.BlockTestResultHandler;
+import eu.matejkormuth.anvilrunner.workers.Worker;
+import eu.matejkormuth.anvilrunner.workers.threaded.ThreadedWorker;
+import eu.matejkormuth.anvilrunner.workers.WorkResultCouple;
 
 import java.nio.file.Paths;
 
 public class GrassBlockWorkDefinition {
 
     // Check for existence of grass block.
-    public class GrassBlockExistence extends BlockTest {
-        protected GrassBlockExistence() {
+    public class GrassBlockTest extends BlockTest {
+        protected GrassBlockTest() {
             // We do not check air.
             super(false);
         }
@@ -60,7 +59,7 @@ public class GrassBlockWorkDefinition {
     }
 
     // For example print to stdout.
-    public class ConcreteBlockTestResultHandler extends BlockTestResultHandler {
+    public class GrassBlockTestResultHandler extends BlockTestResultHandler {
         @Override
         public void onResult(Block parameter, Boolean result) {
             System.out.println(parameter + " : " + result);
@@ -68,13 +67,18 @@ public class GrassBlockWorkDefinition {
     }
 
     public void make() {
-        WorldLoader worldLoader = new WorldLoader(Paths.get("world"));
-        // worldLoader.requestBiomes();
+        RequiredData requiredData = RequiredData.builder()
+                .requireBlockType()
+                .requireBlockData()
+                .build();
+        DataLoader dataLoader = new DataLoader(requiredData);
 
-        WorkResultCouple work = new WorkResultCouple(new GrassBlockExistence(), new ConcreteBlockTestResultHandler());
-        TaskExecutor executor = new ThreadedWorker(8, 2);
-        executor.setWorkParameterProvider(new ChunkToBlockSplitter(new ChunkWorkSplitter(worldLoader)));
-        executor.setTask(work);
+        WorldLoader worldLoader = new WorldLoader(Paths.get("world"));
+
+        WorkResultCouple work = new WorkResultCouple(new GrassBlockTest(), new GrassBlockTestResultHandler());
+        Worker executor = new ThreadedWorker(8, 2);
+        executor.setWorkParameterProvider(new ChunkToBlockSplitter(new RegionToChunkSplitter(worldLoader.createRegionProvider())));
+        executor.setWork(work);
         executor.start();
     }
 }

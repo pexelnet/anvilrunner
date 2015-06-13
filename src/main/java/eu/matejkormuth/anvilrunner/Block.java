@@ -1,13 +1,15 @@
 package eu.matejkormuth.anvilrunner;
 
-public class Block {
+import eu.matejkormuth.anvilrunner.locations.BlockLoc;
+
+public final class Block {
     public final int x;
     public final int y;
     public final int z;
     public final BlockType type;
-    private final World w;
+    private final OldWorld w;
 
-    public Block(World w, int x, int y, int z, BlockType type) {
+    public Block(OldWorld w, int x, int y, int z, BlockType type) {
         this.w = w;
         this.x = x;
         this.y = y;
@@ -20,7 +22,7 @@ public class Block {
         return w.getBlock(this.x + modx, this.y + mody, this.z + modz, true);
     }
 
-    public BlockLocation getBlockLocation() {
-        return new BlockLocation(x, y, z);
+    public final BlockLoc getBlockLocation() {
+        return new BlockLoc(this.x, this.y, this.z);
     }
 }

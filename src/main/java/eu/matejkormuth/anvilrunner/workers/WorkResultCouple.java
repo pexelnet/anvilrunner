@@ -1,8 +1,8 @@
-package eu.matejkormuth.anvilrunner.tasks;
+package eu.matejkormuth.anvilrunner.workers;
 
-public class WorkResultCouple {
-    final Object resultProcessor;
-    final Object resultHandler;
+public final class WorkResultCouple {
+    public final Object resultProcessor;
+    public final Object resultHandler;
 
     public WorkResultCouple(final Object resultProcessor, final Object resultHandler) {
         this.resultProcessor = resultProcessor;

@@ -100,4 +100,7 @@ public class ListTag<T extends Tag> extends Tag {
         return false;
     }
 
+    public List getList() {
+        return  list;
+    }
 }

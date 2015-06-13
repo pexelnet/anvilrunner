@@ -1,6 +1,6 @@
 package eu.matejkormuth.anvilrunner;
 
-public class BlockType {
+public final class BlockType {
     public final byte data;
     public final byte type;
 

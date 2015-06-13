@@ -1,4 +1,4 @@
-package eu.matejkormuth.anvilrunner.jobs.worksplitters;
+package eu.matejkormuth.anvilrunner.parametersplitters;
 
 import eu.matejkormuth.anvilrunner.Block;
 import eu.matejkormuth.anvilrunner.Chunk;
@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class ChunkToBlockSplitter implements Iterable<Block> {
-    private final ChunkWorkSplitter chunkProvider;
+    private final Iterable<Chunk> chunkProvider;
 
-    public ChunkToBlockSplitter(ChunkWorkSplitter chunkProvider) {
+    public ChunkToBlockSplitter(Iterable<Chunk> chunkProvider) {
         this.chunkProvider = chunkProvider;
     }
 

@@ -1,18 +1,18 @@
-package eu.matejkormuth.anvilrunner.tasks;
+package eu.matejkormuth.anvilrunner.workers.threaded;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class WorkerThread {
+public class ThreadedWorkerThread {
     private static final AtomicInteger counter = new AtomicInteger();
 
     private final Thread thread;
     final Deque<Runnable> workBuffer;
 
-    public WorkerThread(int workBufferSize) {
+    public ThreadedWorkerThread(int workBufferSize) {
         thread = new Thread(this::work);
-        thread.setName("WorkerThread-" + counter.getAndIncrement());
+        thread.setName("ThreadedWorkerThread-" + counter.getAndIncrement());
 
         workBuffer = new ArrayDeque<>(workBufferSize);
     }
